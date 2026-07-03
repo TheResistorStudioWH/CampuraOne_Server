@@ -1,29 +1,23 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-function response_json($code, $message, $data = null) {
-    echo json_encode([
-        "code" => $code,
-        "message" => $message,
-        "data" => $data
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+declare(strict_types=1);
+
+require_once __DIR__ . '/../../../../includes/response.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    response_json(405, "method not allowed");
+    respondJson(405, "method not allowed", null, 405);
 }
 
 if (!isset($_FILES['image'])) {
-    response_json(400, "missing image file");
+    respondJson(400, "missing image file", null, 400);
 }
 
 $file = $_FILES['image'];
 
 if ($file['error'] !== UPLOAD_ERR_OK) {
-    response_json(400, "upload failed", [
+    respondJson(400, "upload failed", [
         "error" => $file['error']
-    ]);
+    ], 400);
 }
 
 $adID = isset($_POST['adID']) ? intval($_POST['adID']) : 0;
@@ -32,17 +26,17 @@ $type = isset($_POST['type']) ? strtoupper(trim($_POST['type'])) : "";
 $allowedAdTypes = ["S", "L"];
 
 if (!in_array($type, $allowedAdTypes, true)) {
-    response_json(400, "invalid ad type", [
+    respondJson(400, "invalid ad type", [
         "allowedTypes" => $allowedAdTypes
-    ]);
+    ], 400);
 }
 
 // 限制 5MB
 $maxSize = 5 * 1024 * 1024;
 if ($file['size'] > $maxSize) {
-    response_json(400, "image too large", [
+    respondJson(400, "image too large", [
         "maxSizeMB" => 5
-    ]);
+    ], 400);
 }
 
 // 校验真实 MIME 类型，不只看后缀
@@ -56,10 +50,10 @@ $allowedMimeTypes = [
 ];
 
 if (!array_key_exists($mimeType, $allowedMimeTypes)) {
-    response_json(400, "unsupported image type", [
+    respondJson(400, "unsupported image type", [
         "mimeType" => $mimeType,
         "allowedMimeTypes" => array_keys($allowedMimeTypes)
-    ]);
+    ], 400);
 }
 
 $extension = $allowedMimeTypes[$mimeType];
@@ -68,14 +62,14 @@ $extension = $allowedMimeTypes[$mimeType];
 $imageInfo = getimagesize($file['tmp_name']);
 
 if ($imageInfo === false) {
-    response_json(400, "invalid image file");
+    respondJson(400, "invalid image file", null, 400);
 }
 
 $width = intval($imageInfo[0]);
 $height = intval($imageInfo[1]);
 
 if ($width <= 0 || $height <= 0) {
-    response_json(400, "invalid image size");
+    respondJson(400, "invalid image size", null, 400);
 }
 
 // 尺寸规则
@@ -99,27 +93,27 @@ $rules = [
 $rule = $rules[$type];
 
 if ($width > $rule["maxWidth"] || $height > $rule["maxHeight"]) {
-    response_json(400, "image size too large for ad type", [
+    respondJson(400, "image size too large for ad type", [
         "type" => $type,
         "width" => $width,
         "height" => $height,
         "maxWidth" => $rule["maxWidth"],
         "maxHeight" => $rule["maxHeight"],
         "requirement" => $rule["description"]
-    ]);
+    ], 400);
 }
 
 // 等比例校验：避免浮点误差，用交叉相乘
 // L: width / height == 3 / 1
 // S: width / height == 1 / 1
 if ($width * $rule["ratioHeight"] !== $height * $rule["ratioWidth"]) {
-    response_json(400, "invalid image ratio for ad type", [
+    respondJson(400, "invalid image ratio for ad type", [
         "type" => $type,
         "width" => $width,
         "height" => $height,
         "requiredRatio" => $rule["ratioWidth"] . ":" . $rule["ratioHeight"],
         "requirement" => $rule["description"]
-    ]);
+    ], 400);
 }
 
 // 图片保存到 uploads，不保存到 api
@@ -127,7 +121,7 @@ $uploadDir = "/www/wwwroot/129.211.189.35/uploads/ads/imgs/";
 
 if (!is_dir($uploadDir)) {
     if (!mkdir($uploadDir, 0755, true)) {
-        response_json(500, "failed to create upload directory");
+        respondJson(500, "failed to create upload directory", null, 500);
     }
 }
 
@@ -144,12 +138,12 @@ $fileName =
 $targetPath = $uploadDir . $fileName;
 
 if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-    response_json(500, "failed to save image");
+    respondJson(500, "failed to save image", null, 500);
 }
 
 $imageURL = "http://129.211.189.35/uploads/ads/imgs/" . $fileName;
 
-response_json(200, "success", [
+respondJson(200, "success", [
     "url" => $imageURL,
     "fileName" => $fileName,
     "adID" => $adID,
