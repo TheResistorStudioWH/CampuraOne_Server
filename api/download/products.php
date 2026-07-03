@@ -2,79 +2,14 @@
 
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-
-require_once __DIR__ . '/../../config/database.php';
-
-
-/**
- * 统一返回 JSON。
- */
-function respond(
-    int $code,
-    string $message,
-    mixed $data = null,
-    int $httpStatus = 200
-): never {
-    http_response_code($httpStatus);
-
-    echo json_encode(
-        [
-            'code' => $code,
-            'message' => $message,
-            'data' => $data
-        ],
-        JSON_UNESCAPED_UNICODE
-        | JSON_UNESCAPED_SLASHES
-        | JSON_PRESERVE_ZERO_FRACTION
-    );
-
-    exit;
-}
-
-
-/**
- * 读取可选的正整数参数。
- */
-function optionalPositiveInt(string $name): ?int {
-    if (!isset($_GET[$name]) || $_GET[$name] === '') {
-        return null;
-    }
-
-    $value = filter_var(
-        $_GET[$name],
-        FILTER_VALIDATE_INT
-    );
-
-    if ($value === false || $value <= 0) {
-        respond(
-            400,
-            "invalid {$name}",
-            null,
-            400
-        );
-    }
-
-    return $value;
-}
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/request.php';
+require_once __DIR__ . '/../../includes/validation.php';
 
 
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        respond(
-            405,
-            'method not allowed',
-            null,
-            405
-        );
-    }
-
-    if (!isset($pdo) || !($pdo instanceof PDO)) {
-        throw new RuntimeException(
-            'PDO connection variable $pdo is unavailable'
-        );
-    }
+    requireMethod('GET');
 
     /*
      * 保证 PDO 会抛出异常，方便定位数据库问题。
@@ -84,10 +19,10 @@ try {
         PDO::ERRMODE_EXCEPTION
     );
 
-    $productID = optionalPositiveInt('productID');
-    $mainShopID = optionalPositiveInt('mainShopID');
-    $subShopID = optionalPositiveInt('subShopID');
-    $categoryID = optionalPositiveInt('categoryID');
+    $productID = optionalPositiveInt('productID', $_GET);
+    $mainShopID = optionalPositiveInt('mainShopID', $_GET);
+    $subShopID = optionalPositiveInt('subShopID', $_GET);
+    $categoryID = optionalPositiveInt('categoryID', $_GET);
 
     $scope = isset($_GET['scope'])
         ? trim((string) $_GET['scope'])
@@ -98,7 +33,7 @@ try {
         && $scope !== ''
         && $scope !== 'direct'
     ) {
-        respond(
+        respondJson(
             400,
             'invalid scope',
             null,
@@ -206,7 +141,7 @@ try {
         );
 
         if (!$product) {
-            respond(
+            respondJson(
                 404,
                 'product not found',
                 null,
@@ -239,7 +174,7 @@ try {
             $product['categoryID'] = (int) $product['categoryID'];
         }
 
-        respond(
+        respondJson(
             200,
             'success',
             $product
@@ -277,7 +212,7 @@ try {
 
     unset($product);
 
-    respond(
+    respondJson(
         200,
         'success',
         $products
@@ -296,7 +231,7 @@ try {
      *
      * 正式使用时不要向客户端暴露数据库结构。
      */
-    respond(
+    respondJson(
         500,
         'database error',
         null,
@@ -309,7 +244,7 @@ try {
         . $error->getMessage()
     );
 
-    respond(
+    respondJson(
         500,
         'server error',
         null,

@@ -2,107 +2,14 @@
 
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-
-require_once __DIR__ . '/../../config/database.php';
-
-
-function respond(
-    int $code,
-    string $message,
-    mixed $data = null,
-    int $httpStatus = 200
-): never {
-    http_response_code($httpStatus);
-
-    echo json_encode(
-        [
-            'code' => $code,
-            'message' => $message,
-            'data' => $data
-        ],
-        JSON_UNESCAPED_UNICODE
-        | JSON_UNESCAPED_SLASHES
-    );
-
-    exit;
-}
-
-
-/**
- * 获取可选正整数参数。
- *
- * 未传参数时返回 null；
- * 参数非法时返回 400。
- */
-function optionalPositiveInt(string $name): ?int {
-    if (!isset($_GET[$name]) || $_GET[$name] === '') {
-        return null;
-    }
-
-    $value = filter_var(
-        $_GET[$name],
-        FILTER_VALIDATE_INT
-    );
-
-    if ($value === false || $value <= 0) {
-        respond(
-            400,
-            "invalid {$name}",
-            null,
-            400
-        );
-    }
-
-    return $value;
-}
-
-
-/**
- * 获取可选的 0 / 1 参数。
- *
- * 未传或传 0：false
- * 传 1：true
- */
-function optionalBooleanFlag(string $name): bool {
-    if (!isset($_GET[$name]) || $_GET[$name] === '') {
-        return false;
-    }
-
-    $value = filter_var(
-        $_GET[$name],
-        FILTER_VALIDATE_INT
-    );
-
-    if ($value === false || !in_array($value, [0, 1], true)) {
-        respond(
-            400,
-            "invalid {$name}, expected 0 or 1",
-            null,
-            400
-        );
-    }
-
-    return $value === 1;
-}
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/request.php';
+require_once __DIR__ . '/../../includes/validation.php';
 
 
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        respond(
-            405,
-            'method not allowed',
-            null,
-            405
-        );
-    }
-
-    if (!isset($pdo) || !($pdo instanceof PDO)) {
-        throw new RuntimeException(
-            'PDO connection variable $pdo is unavailable'
-        );
-    }
+    requireMethod('GET');
 
     $pdo->setAttribute(
         PDO::ATTR_ERRMODE,
@@ -118,8 +25,8 @@ try {
      * onlyActive：
      * 传 1 时只返回当前有效促销。
      */
-    $productID = optionalPositiveInt('productID');
-    $onlyActive = optionalBooleanFlag('onlyActive');
+    $productID = optionalPositiveInt('productID', $_GET);
+    $onlyActive = optionalBooleanFlag('onlyActive', $_GET);
 
     $conditions = [];
     $parameters = [];
@@ -182,7 +89,7 @@ try {
 
     unset($promotionEvent);
 
-    respond(
+    respondJson(
         200,
         'success',
         $promotionEvents
@@ -194,7 +101,7 @@ try {
         . $error->getMessage()
     );
 
-    respond(
+    respondJson(
         500,
         'database error',
         null,
@@ -207,7 +114,7 @@ try {
         . $error->getMessage()
     );
 
-    respond(
+    respondJson(
         500,
         'server error',
         null,

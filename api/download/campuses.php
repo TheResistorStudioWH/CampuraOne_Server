@@ -1,18 +1,14 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+declare(strict_types=1);
+
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
 
 $schoolID = $_GET['schoolID'] ?? null;
 
 if ($schoolID === null || $schoolID === '') {
-    http_response_code(400);
-    echo json_encode([
-        "code" => 400,
-        "message" => "missing schoolID",
-        "data" => null
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    exit;
+    respondJson(400, 'missing schoolID', null, 400);
 }
 
 try {
@@ -46,18 +42,13 @@ try {
         }
     }
 
-    echo json_encode([
-        "code" => 200,
-        "message" => "success",
-        "data" => $campuses
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    respondJson(200, 'success', $campuses);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-
-    echo json_encode([
-        "code" => 500,
-        "message" => "database query failed",
-        "error" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    respondJson(
+        500,
+        'database query failed',
+        ['error' => $e->getMessage()],
+        500
+    );
 }

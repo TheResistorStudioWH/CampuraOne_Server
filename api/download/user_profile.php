@@ -1,23 +1,16 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+declare(strict_types=1);
+
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/request.php';
+
+requireMethod('GET');
 
 $userID = $_GET['userID'] ?? null;
 
-function send_json($httpCode, $code, $message, $data = null) {
-    http_response_code($httpCode);
-
-    echo json_encode([
-        "code" => $code,
-        "message" => $message,
-        "data" => $data
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-    exit;
-}
-
-function decode_shop_ids($rawValue) {
+function decodeShopIDs(?string $rawValue): array {
     if ($rawValue === null || $rawValue === '') {
         return [];
     }
@@ -32,7 +25,7 @@ function decode_shop_ids($rawValue) {
 }
 
 if ($userID === null || $userID === '') {
-    send_json(400, 400, "missing userID");
+    respondJson(400, 'missing userID', null, 400);
 }
 
 try {
@@ -41,7 +34,6 @@ try {
             userID,
             userName,
             userImg,
-            passwordHash,
             shopIDs,
             studentID,
             DATE_FORMAT(createdAt, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
@@ -59,29 +51,24 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
-        send_json(404, 404, "user not found");
+        respondJson(404, 'user not found', null, 404);
     }
 
-    send_json(200, 200, "success", [
+    respondJson(200, 'success', [
         "userID" => intval($user["userID"]),
         "userName" => $user["userName"],
         "userImg" => $user["userImg"],
-        "passwordHash" => $user["passwordHash"],
-        "shopIDs" => decode_shop_ids($user["shopIDs"]),
+        "shopIDs" => decodeShopIDs($user["shopIDs"]),
         "studentID" => $user["studentID"] === null ? null : intval($user["studentID"]),
         "createdAt" => $user["createdAt"],
         "updatedAt" => $user["updatedAt"]
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-
-    echo json_encode([
-        "code" => 500,
-        "message" => "database query failed",
-        "data" => null,
-        "error" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-    exit;
+    respondJson(
+        500,
+        'database query failed',
+        ['error' => $e->getMessage()],
+        500
+    );
 }

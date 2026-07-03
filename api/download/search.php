@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/request.php';
+require_once __DIR__ . '/../../includes/validation.php';
 
-require_once __DIR__ . '/../../config/database.php';
+const SEARCH_DEFAULT_LIMIT = 20;
+const SEARCH_MAX_LIMIT = 100;
+const SEARCH_SUGGESTION_LIMIT = 8;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,12 +81,52 @@ if (!function_exists('mb_substr_count')) {
 |
 */
 
+/*
+|--------------------------------------------------------------------------
+| 搜索能力配置
+|--------------------------------------------------------------------------
+|
+| 每种模式只描述“查什么”和“怎么排”，避免以后继续在主流程里堆 switch。
+| 后续接入 DeepSeek 时，可以新增 ai 模式，或在 enhancer 中对 smart 结果重排。
+|
+*/
+
+function searchModeConfig(): array
+{
+    return [
+        'all' => [
+            'searchPromotions' => true,
+            'searchProducts' => true,
+            'searchShops' => true,
+            'sortStrategy' => 'grouped',
+            'buildSuggestions' => false,
+        ],
+        'smart' => [
+            'searchPromotions' => true,
+            'searchProducts' => true,
+            'searchShops' => true,
+            'sortStrategy' => 'relevance',
+            'buildSuggestions' => true,
+        ],
+        'product' => [
+            'searchPromotions' => false,
+            'searchProducts' => true,
+            'searchShops' => false,
+            'sortStrategy' => 'relevance',
+            'buildSuggestions' => false,
+        ],
+        'shop' => [
+            'searchPromotions' => false,
+            'searchProducts' => false,
+            'searchShops' => true,
+            'sortStrategy' => 'relevance',
+            'buildSuggestions' => false,
+        ],
+    ];
+}
+
 try {
-    if (!isset($pdo) || !($pdo instanceof PDO)) {
-        throw new RuntimeException(
-            'database.php 未提供可用的 $pdo 数据库连接'
-        );
-    }
+    requireMethod('GET');
 
     $query = trim((string)($_GET['q'] ?? ''));
     $mode = strtolower(trim((string)($_GET['mode'] ?? 'all')));
@@ -93,26 +137,22 @@ try {
         : null;
 
     $limit = isset($_GET['limit'])
-        ? max(1, min((int)$_GET['limit'], 100))
-        : 20;
+        ? max(1, min((int)$_GET['limit'], SEARCH_MAX_LIMIT))
+        : SEARCH_DEFAULT_LIMIT;
 
     $offset = isset($_GET['offset'])
         ? max(0, (int)$_GET['offset'])
         : 0;
 
-    $allowedModes = [
-        'all',
-        'smart',
-        'product',
-        'shop'
-    ];
+    $modeConfigMap = searchModeConfig();
 
-    if (!in_array($mode, $allowedModes, true)) {
-        respondError(
-            400,
-            '不支持的搜索模式'
-        );
+    if (!isset($modeConfigMap[$mode])) {
+        respondJson(400, '不支持的搜索模式', [
+            'supportedModes' => array_keys($modeConfigMap),
+        ], 400);
     }
+
+    $modeConfig = $modeConfigMap[$mode];
 
     /*
     |--------------------------------------------------------------------------
@@ -121,7 +161,7 @@ try {
     */
 
     if ($query === '') {
-        respondSuccess([
+        respondJson(200, 'success', [
             'query' => '',
             'mode' => $mode,
             'matchedCategories' => [],
@@ -132,7 +172,13 @@ try {
                 'offset' => $offset,
                 'total' => 0,
                 'hasMore' => false
-            ]
+            ],
+            'searchMeta' => buildSearchMeta(
+                $mode,
+                $schoolID,
+                0,
+                false
+            )
         ]);
     }
 
@@ -148,43 +194,28 @@ try {
     |--------------------------------------------------------------------------
     */
 
-    switch ($mode) {
-        case 'all':
-        case 'smart':
-            $promotionRows = searchPromotions(
-                $pdo,
-                $like,
-                $schoolID
-            );
+    if ($modeConfig['searchPromotions']) {
+        $promotionRows = searchPromotions(
+            $pdo,
+            $like,
+            $schoolID
+        );
+    }
 
-            $productRows = searchProducts(
-                $pdo,
-                $like,
-                $schoolID
-            );
+    if ($modeConfig['searchProducts']) {
+        $productRows = searchProducts(
+            $pdo,
+            $like,
+            $schoolID
+        );
+    }
 
-            $shopRows = searchShops(
-                $pdo,
-                $like,
-                $schoolID
-            );
-            break;
-
-        case 'product':
-            $productRows = searchProducts(
-                $pdo,
-                $like,
-                $schoolID
-            );
-            break;
-
-        case 'shop':
-            $shopRows = searchShops(
-                $pdo,
-                $like,
-                $schoolID
-            );
-            break;
+    if ($modeConfig['searchShops']) {
+        $shopRows = searchShops(
+            $pdo,
+            $like,
+            $schoolID
+        );
     }
 
     $rows = array_merge(
@@ -213,7 +244,7 @@ try {
     |--------------------------------------------------------------------------
     */
 
-    if ($mode === 'all') {
+    if ($modeConfig['sortStrategy'] === 'grouped') {
         /*
          * 普通全局固定分组顺序：
          *
@@ -297,11 +328,11 @@ try {
 
     $suggestions = [];
 
-    if ($mode === 'smart') {
+    if ($modeConfig['buildSuggestions']) {
         $suggestionRows = array_slice(
             $rows,
             0,
-            8
+            SEARCH_SUGGESTION_LIMIT
         );
 
         $suggestions = array_map(
@@ -329,7 +360,7 @@ try {
         $pagedRows
     );
 
-    respondSuccess([
+    respondJson(200, 'success', [
         'query' => $query,
         'mode' => $mode,
         'matchedCategories' => collectMatchedCategories(
@@ -344,20 +375,61 @@ try {
             'hasMore' => (
                 $offset + count($results)
             ) < $total
-        ]
+        ],
+        'searchMeta' => buildSearchMeta(
+            $mode,
+            $schoolID,
+            $total,
+            false
+        )
     ]);
 } catch (PDOException $error) {
-    respondError(
+    respondJson(
         500,
         '数据库搜索失败',
-        $error->getMessage()
+        ['error' => $error->getMessage()],
+        500
     );
 } catch (Throwable $error) {
-    respondError(
+    respondJson(
         500,
         '搜索失败',
-        $error->getMessage()
+        ['error' => $error->getMessage()],
+        500
     );
+}
+/*
+|--------------------------------------------------------------------------
+| 搜索元数据与未来 AI 增强入口
+|--------------------------------------------------------------------------
+*/
+
+function buildSearchMeta(
+    string $mode,
+    ?int $schoolID,
+    int $total,
+    bool $aiEnhanced
+): array {
+    return [
+        'engine' => $aiEnhanced ? 'deepseek' : 'local',
+        'mode' => $mode,
+        'schoolID' => $schoolID,
+        'total' => $total,
+        'aiEnhanced' => $aiEnhanced,
+        'aiReady' => true,
+    ];
+}
+
+/**
+ * 后续接入 DeepSeek 时，把本地结果和用户关键词交给该函数进行意图识别、
+ * 查询改写或二次重排。当前阶段保持原样返回，避免影响现有搜索结果。
+ */
+function enhanceSearchResults(
+    array $rows,
+    string $query,
+    string $mode
+): array {
+    return $rows;
 }
 
 /*
@@ -1136,61 +1208,4 @@ function nullableTrimmedString(
     return $trimmed === ''
         ? null
         : $trimmed;
-}
-
-/*
-|--------------------------------------------------------------------------
-| 返回 JSON
-|--------------------------------------------------------------------------
-*/
-
-function respondSuccess(
-    array $data
-): never {
-    echo json_encode(
-        [
-            'code' => 200,
-            'message' => 'success',
-            'data' => $data
-        ],
-        JSON_UNESCAPED_UNICODE
-        | JSON_UNESCAPED_SLASHES
-    );
-
-    exit;
-}
-
-function respondError(
-    int $code,
-    string $message,
-    ?string $debug = null
-): never {
-    $response = [
-        'code' => $code,
-        'message' => $message,
-        'data' => null
-    ];
-
-    /*
-     * 调试阶段保留 debug。
-     * 正式上线后建议删除，避免暴露数据库结构。
-     */
-    if ($debug !== null) {
-        $response['debug'] = $debug;
-    }
-
-    http_response_code(
-        $code >= 400
-        && $code <= 599
-            ? $code
-            : 500
-    );
-
-    echo json_encode(
-        $response,
-        JSON_UNESCAPED_UNICODE
-        | JSON_UNESCAPED_SLASHES
-    );
-
-    exit;
 }

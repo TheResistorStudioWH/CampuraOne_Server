@@ -1,23 +1,13 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+declare(strict_types=1);
+
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
 
 $saleID = $_GET['saleID'] ?? null;
 $type = $_GET['type'] ?? null;
 $onlyActive = $_GET['onlyActive'] ?? null;
-
-function send_json($httpCode, $code, $message, $data = null) {
-    http_response_code($httpCode);
-
-    echo json_encode([
-        "code" => $code,
-        "message" => $message,
-        "data" => $data
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-    exit;
-}
 
 try {
     $sql = "
@@ -45,7 +35,7 @@ try {
         $type = strtoupper(trim($type));
 
         if ($type !== 'L' && $type !== 'S') {
-            send_json(400, 400, "invalid type, only L or S is allowed");
+            respondJson(400, 'invalid type, only L or S is allowed', null, 400);
         }
 
         $sql .= " AND type = ? ";
@@ -83,17 +73,12 @@ try {
         ];
     }
 
-    send_json(200, 200, "success", $advertisements);
-
+    respondJson(200, 'success', $advertisements);
 } catch (PDOException $e) {
-    http_response_code(500);
-
-    echo json_encode([
-        "code" => 500,
-        "message" => "database query failed",
-        "data" => null,
-        "error" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-    exit;
+    respondJson(
+        500,
+        'database query failed',
+        ['error' => $e->getMessage()],
+        500
+    );
 }

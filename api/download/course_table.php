@@ -1,39 +1,29 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+declare(strict_types=1);
+
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
 
 $schoolID = $_GET['schoolID'] ?? null;
 $compoundID = $_GET['compoundID'] ?? null;
 $departmentID = $_GET['departmentID'] ?? null;
 $classID = $_GET['classID'] ?? null;
 
-function send_json($httpCode, $code, $message, $data = null) {
-    http_response_code($httpCode);
-
-    echo json_encode([
-        "code" => $code,
-        "message" => $message,
-        "data" => $data
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-    exit;
-}
-
 if ($schoolID === null || $schoolID === '') {
-    send_json(400, 400, "missing schoolID");
+    respondJson(400, 'missing schoolID', null, 400);
 }
 
 if ($compoundID === null || $compoundID === '') {
-    send_json(400, 400, "missing compoundID");
+    respondJson(400, 'missing compoundID', null, 400);
 }
 
 if ($departmentID === null || $departmentID === '') {
-    send_json(400, 400, "missing departmentID");
+    respondJson(400, 'missing departmentID', null, 400);
 }
 
 if ($classID === null || $classID === '') {
-    send_json(400, 400, "missing classID");
+    respondJson(400, 'missing classID', null, 400);
 }
 
 try {
@@ -67,10 +57,10 @@ try {
     $courseTable = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$courseTable) {
-        send_json(404, 404, "course table not found");
+        respondJson(404, 'course table not found', null, 404);
     }
 
-    send_json(200, 200, "success", [
+    respondJson(200, 'success', [
         "tableID" => intval($courseTable["tableID"]),
         "schoolID" => intval($courseTable["schoolID"]),
         "compoundID" => intval($courseTable["compoundID"]),
@@ -82,14 +72,10 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-
-    echo json_encode([
-        "code" => 500,
-        "message" => "database query failed",
-        "data" => null,
-        "error" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-    exit;
+    respondJson(
+        500,
+        'database query failed',
+        ['error' => $e->getMessage()],
+        500
+    );
 }

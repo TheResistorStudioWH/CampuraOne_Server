@@ -1,7 +1,9 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+declare(strict_types=1);
+
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
 
 $schoolID = $_GET['schoolID'] ?? null;
 $type = $_GET['type'] ?? null;
@@ -12,13 +14,7 @@ $classID = $_GET['classID'] ?? null;
 $studentID = $_GET['studentID'] ?? null;
 
 if ($schoolID === null || $schoolID === '') {
-    http_response_code(400);
-    echo json_encode([
-        "code" => 400,
-        "message" => "missing schoolID",
-        "data" => null
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    exit;
+    respondJson(400, 'missing schoolID', null, 400);
 }
 
 try {
@@ -98,23 +94,19 @@ try {
         }
     }
 
-    echo json_encode([
-        "code" => 200,
-        "message" => "success",
-        "data" => $visibleAnnouncements
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    respondJson(200, 'success', $visibleAnnouncements);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-
-    echo json_encode([
-        "code" => 500,
-        "message" => "database query failed",
-        "error" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    respondJson(
+        500,
+        'database query failed',
+        ['error' => $e->getMessage()],
+        500
+    );
 }
 
-function normalizeAnnouncementTarget($target) {
+function normalizeAnnouncementTarget(array $target): array
+{
     return [
         "allSchool" => isset($target["allSchool"]) ? boolval($target["allSchool"]) : false,
         "areaIDs" => isset($target["areaIDs"]) && is_array($target["areaIDs"]) ? array_map('intval', $target["areaIDs"]) : [],
@@ -124,7 +116,13 @@ function normalizeAnnouncementTarget($target) {
     ];
 }
 
-function isAnnouncementVisible($target, $areaID, $departmentID, $classID, $studentID) {
+function isAnnouncementVisible(
+    ?array $target,
+    $areaID,
+    $departmentID,
+    $classID,
+    $studentID
+): bool {
     // 如果没有 target，暂时认为可见。
     // 这样可以兼容旧数据，避免旧通知突然全部消失。
     if ($target === null) {

@@ -1,33 +1,20 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+declare(strict_types=1);
 
-function response_json($code, $message, $data = null) {
-    echo json_encode([
-        "code" => $code,
-        "message" => $message,
-        "data" => $data
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/request.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    response_json(405, "method not allowed");
-}
+requireMethod('GET');
 
 $schoolID = isset($_GET['schoolID']) ? intval($_GET['schoolID']) : 0;
 
 if ($schoolID <= 0) {
-    response_json(400, "missing or invalid schoolID");
+    respondJson(400, 'missing or invalid schoolID', null, 400);
 }
 
 try {
-    /*
-        这里假设你的 database.php 里已经创建了 $pdo
-        如果你的变量名不是 $pdo，把下面的 $pdo 改成你实际的连接变量名。
-    */
-
     $sql = "
         SELECT
             schoolID,
@@ -51,7 +38,7 @@ try {
     $school = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$school) {
-        response_json(404, "school not found");
+        respondJson(404, 'school not found', null, 404);
     }
 
     $data = [
@@ -66,10 +53,13 @@ try {
         "updatedAt" => $school["updatedAt"]
     ];
 
-    response_json(200, "success", $data);
+    respondJson(200, 'success', $data);
 
 } catch (Throwable $e) {
-    response_json(500, "server error", [
-        "error" => $e->getMessage()
-    ]);
+    respondJson(
+        500,
+        'server error',
+        ['error' => $e->getMessage()],
+        500
+    );
 }

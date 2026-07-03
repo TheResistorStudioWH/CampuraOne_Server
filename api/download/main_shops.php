@@ -1,38 +1,41 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../../config/database.php';
+declare(strict_types=1);
+
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
 
 $schoolID = $_GET['schoolID'] ?? null;
 
-if ($schoolID === null) {
-    echo json_encode([
-        "code" => 400,
-        "message" => "missing schoolID",
-        "data" => null
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
+if ($schoolID === null || $schoolID === '') {
+    respondJson(400, 'missing schoolID', null, 400);
 }
 
-$stmt = $pdo->prepare("SELECT * FROM main_shops WHERE schoolID = ?");
-$stmt->execute([$schoolID]);
-$shops = $stmt->fetchAll();
+try {
+    $stmt = $pdo->prepare("SELECT * FROM main_shops WHERE schoolID = ?");
+    $stmt->execute([$schoolID]);
+    $shops = $stmt->fetchAll();
 
-foreach ($shops as &$shop) {
-    $shop["shopID"] = intval($shop["shopID"]);
-    $shop["schoolID"] = intval($shop["schoolID"]);
-    $shop["areaID"] = $shop["areaID"] === null ? null : intval($shop["areaID"]);
-    $shop["accountID"] = intval($shop["accountID"]);
+    foreach ($shops as &$shop) {
+        $shop["shopID"] = intval($shop["shopID"]);
+        $shop["schoolID"] = intval($shop["schoolID"]);
+        $shop["areaID"] = $shop["areaID"] === null ? null : intval($shop["areaID"]);
+        $shop["accountID"] = intval($shop["accountID"]);
 
-    $shop["shopAddress"] = json_decode($shop["shopAddress"], true);
-    $shop["subShopsList"] = json_decode($shop["subShopsList"], true) ?? [];
-    $shop["productsList"] = json_decode($shop["productsList"], true) ?? [];
-    $shop["adIDs"] = json_decode($shop["adIDs"], true) ?? [];
-    $shop["saleIDs"] = json_decode($shop["saleIDs"], true) ?? [];
+        $shop["shopAddress"] = json_decode($shop["shopAddress"], true);
+        $shop["subShopsList"] = json_decode($shop["subShopsList"], true) ?? [];
+        $shop["productsList"] = json_decode($shop["productsList"], true) ?? [];
+        $shop["adIDs"] = json_decode($shop["adIDs"], true) ?? [];
+        $shop["saleIDs"] = json_decode($shop["saleIDs"], true) ?? [];
+    }
+    unset($shop);
+
+    respondJson(200, 'success', $shops);
+} catch (PDOException $e) {
+    respondJson(
+        500,
+        'database query failed',
+        ['error' => $e->getMessage()],
+        500
+    );
 }
-
-echo json_encode([
-    "code" => 200,
-    "message" => "success",
-    "data" => $shops
-], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

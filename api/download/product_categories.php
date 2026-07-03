@@ -2,81 +2,14 @@
 
 declare(strict_types=1);
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
-
-require_once __DIR__ . '/../../config/database.php';
-
-
-/**
- * 统一返回 JSON。
- */
-function respond(
-    int $code,
-    string $message,
-    mixed $data = null,
-    int $httpStatus = 200
-): never {
-    http_response_code($httpStatus);
-
-    echo json_encode(
-        [
-            'code' => $code,
-            'message' => $message,
-            'data' => $data
-        ],
-        JSON_UNESCAPED_UNICODE
-        | JSON_UNESCAPED_SLASHES
-    );
-
-    exit;
-}
-
-
-/**
- * 读取可选的正整数参数。
- *
- * 不传参数时返回 null，
- * 参数格式错误时直接返回 400。
- */
-function optionalPositiveInt(string $name): ?int {
-    if (!isset($_GET[$name]) || $_GET[$name] === '') {
-        return null;
-    }
-
-    $value = filter_var(
-        $_GET[$name],
-        FILTER_VALIDATE_INT
-    );
-
-    if ($value === false || $value <= 0) {
-        respond(
-            400,
-            "invalid {$name}",
-            null,
-            400
-        );
-    }
-
-    return $value;
-}
+$pdo = require __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/request.php';
+require_once __DIR__ . '/../../includes/validation.php';
 
 
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        respond(
-            405,
-            'method not allowed',
-            null,
-            405
-        );
-    }
-
-    if (!isset($pdo) || !($pdo instanceof PDO)) {
-        throw new RuntimeException(
-            'PDO connection variable $pdo is unavailable'
-        );
-    }
+    requireMethod('GET');
 
     $pdo->setAttribute(
         PDO::ATTR_ERRMODE,
@@ -92,7 +25,7 @@ try {
      * 传入：
      * 返回指定分类。
      */
-    $categoryID = optionalPositiveInt('categoryID');
+    $categoryID = optionalPositiveInt('categoryID', $_GET);
 
     /*
      * 查询单个分类。
@@ -122,7 +55,7 @@ try {
         );
 
         if (!$category) {
-            respond(
+            respondJson(
                 404,
                 'product category not found',
                 null,
@@ -132,7 +65,7 @@ try {
 
         $category['categoryID'] = (int) $category['categoryID'];
 
-        respond(
+        respondJson(
             200,
             'success',
             $category
@@ -168,7 +101,7 @@ try {
 
     unset($category);
 
-    respond(
+    respondJson(
         200,
         'success',
         $categories
@@ -180,7 +113,7 @@ try {
         . $error->getMessage()
     );
 
-    respond(
+    respondJson(
         500,
         'database error',
         null,
@@ -193,7 +126,7 @@ try {
         . $error->getMessage()
     );
 
-    respond(
+    respondJson(
         500,
         'server error',
         null,
