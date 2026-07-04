@@ -21,8 +21,8 @@ try {
             compoundID,
             departmentID,
             classID,
-            DATE_FORMAT(createdAt, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
-            DATE_FORMAT(updatedAt, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt
+            DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i:%s') AS createdAt,
+            DATE_FORMAT(updatedAt, '%Y-%m-%d %H:%i:%s') AS updatedAt
         FROM students
         WHERE studentID = ?
         LIMIT 1

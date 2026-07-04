@@ -16,10 +16,10 @@ try {
             saleID,
             type,
             img,
-            DATE_FORMAT(startTime, '%Y-%m-%dT%H:%i:%sZ') AS startTime,
-            DATE_FORMAT(endTime, '%Y-%m-%dT%H:%i:%sZ') AS endTime,
-            DATE_FORMAT(createdAt, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
-            DATE_FORMAT(updatedAt, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt
+            DATE_FORMAT(startTime, '%Y-%m-%d %H:%i:%s') AS startTime,
+            DATE_FORMAT(endTime, '%Y-%m-%d %H:%i:%s') AS endTime,
+            DATE_FORMAT(createdAt, '%Y-%m-%d %H:%i:%s') AS createdAt,
+            DATE_FORMAT(updatedAt, '%Y-%m-%d %H:%i:%s') AS updatedAt
         FROM advertisements
         WHERE 1 = 1
     ";

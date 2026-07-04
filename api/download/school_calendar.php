@@ -16,7 +16,7 @@ try {
         SELECT
             schoolID,
             schoolCalendar,
-            DATE_FORMAT(updatedAt, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt
+            DATE_FORMAT(updatedAt, '%Y-%m-%d %H:%i:%s') AS updatedAt
         FROM schools
         WHERE schoolID = ?
         LIMIT 1

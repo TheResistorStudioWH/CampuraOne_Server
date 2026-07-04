@@ -24,10 +24,10 @@ try {
             a.schoolID,
             a.content,
             a.type,
-            DATE_FORMAT(a.startTime, '%Y-%m-%dT%H:%i:%sZ') AS startTime,
-            DATE_FORMAT(a.endTime, '%Y-%m-%dT%H:%i:%sZ') AS endTime,
-            DATE_FORMAT(a.createdAt, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
-            DATE_FORMAT(a.updatedAt, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt,
+            DATE_FORMAT(a.startTime, '%Y-%m-%d %H:%i:%s') AS startTime,
+            DATE_FORMAT(a.endTime, '%Y-%m-%d %H:%i:%s') AS endTime,
+            DATE_FORMAT(a.createdAt, '%Y-%m-%d %H:%i:%s') AS createdAt,
+            DATE_FORMAT(a.updatedAt, '%Y-%m-%d %H:%i:%s') AS updatedAt,
             t.targetJSON
         FROM announcements a
         LEFT JOIN announcement_targets t
@@ -58,11 +58,11 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
-    $announcements = $stmt->fetchAll();
+    $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $visibleAnnouncements = [];
 
-    foreach ($announcements as &$item) {
+    foreach ($announcements as $item) {
         $item["announceID"] = intval($item["announceID"]);
         $item["schoolID"] = intval($item["schoolID"]);
         $item["type"] = intval($item["type"]);

@@ -38,8 +38,8 @@ try {
                 categoryName,
                 categoryIcon,
                 categoryColor,
-                createdAt,
-                updatedAt
+                DATE_FORMAT(createdAt, \'%Y-%m-%d %H:%i:%s\') AS createdAt,
+                DATE_FORMAT(updatedAt, \'%Y-%m-%d %H:%i:%s\') AS updatedAt
             FROM product_categories
             WHERE categoryID = :categoryID
             LIMIT 1
@@ -83,8 +83,8 @@ try {
             categoryName,
             categoryIcon,
             categoryColor,
-            createdAt,
-            updatedAt
+            DATE_FORMAT(createdAt, \'%Y-%m-%d %H:%i:%s\') AS createdAt,
+            DATE_FORMAT(updatedAt, \'%Y-%m-%d %H:%i:%s\') AS updatedAt
         FROM product_categories
         ORDER BY
             categoryID ASC

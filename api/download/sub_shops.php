@@ -20,7 +20,7 @@ try {
     ");
     $stmt->execute([$mainShopID]);
 
-    $shops = $stmt->fetchAll();
+    $shops = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($shops as &$shop) {
         $shop["shopID"] = intval($shop["shopID"]);

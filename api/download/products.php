@@ -103,8 +103,8 @@ try {
             p.mainShopID,
             p.subShopID,
             p.categoryID,
-            p.createdAt,
-            p.updatedAt,
+            DATE_FORMAT(p.createdAt, '%Y-%m-%d %H:%i:%s') AS createdAt,
+            DATE_FORMAT(p.updatedAt, '%Y-%m-%d %H:%i:%s') AS updatedAt,
 
             pc.categoryName,
             pc.categoryIcon,

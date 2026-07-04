@@ -14,7 +14,7 @@ if ($schoolID === null || $schoolID === '') {
 try {
     $stmt = $pdo->prepare("SELECT * FROM main_shops WHERE schoolID = ?");
     $stmt->execute([$schoolID]);
-    $shops = $stmt->fetchAll();
+    $shops = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($shops as &$shop) {
         $shop["shopID"] = intval($shop["shopID"]);
@@ -22,7 +22,7 @@ try {
         $shop["areaID"] = $shop["areaID"] === null ? null : intval($shop["areaID"]);
         $shop["accountID"] = intval($shop["accountID"]);
 
-        $shop["shopAddress"] = json_decode($shop["shopAddress"], true);
+        $shop["shopAddress"] = json_decode($shop["shopAddress"] ?? "{}", true);
         $shop["subShopsList"] = json_decode($shop["subShopsList"], true) ?? [];
         $shop["productsList"] = json_decode($shop["productsList"], true) ?? [];
         $shop["adIDs"] = json_decode($shop["adIDs"], true) ?? [];

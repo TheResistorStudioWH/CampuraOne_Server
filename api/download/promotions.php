@@ -60,10 +60,10 @@ try {
             pe.saleID,
             pe.productID,
             pe.saleRule,
-            pe.startTime,
-            pe.endTime,
-            pe.createdAt,
-            pe.updatedAt
+            DATE_FORMAT(pe.startTime, '%Y-%m-%d %H:%i:%s') AS startTime,
+            DATE_FORMAT(pe.endTime, '%Y-%m-%d %H:%i:%s') AS endTime,
+            DATE_FORMAT(pe.createdAt, '%Y-%m-%d %H:%i:%s') AS createdAt,
+            DATE_FORMAT(pe.updatedAt, '%Y-%m-%d %H:%i:%s') AS updatedAt
         FROM promotion_events AS pe
         {$whereSQL}
         ORDER BY
