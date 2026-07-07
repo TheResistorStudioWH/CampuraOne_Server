@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 $pdo = require __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/auth/middleware.php';
 
-$studentID = $_GET['studentID'] ?? null;
+$payload = authMiddleware();
 
-if ($studentID === null || $studentID === '') {
-    respondJson(400, 'missing studentID', null, 400);
+if (empty($payload['studentID'])) {
+    respondJson(403, 'no student permission', null, 403);
 }
+
+$studentID = $payload['studentID'];
 
 try {
     $sql = "
