@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 $pdo = require __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/response.php';
+require_once __DIR__ . '/../../includes/ics_storage.php';
 
 $schoolID = $_GET['schoolID'] ?? null;
 $compoundID = $_GET['compoundID'] ?? null;
@@ -60,22 +61,31 @@ try {
         respondJson(404, 'course table not found', null, 404);
     }
 
+    $calendar = readCourseICS((string)$courseTable['content']);
+    if (($_GET['download'] ?? '') === '1') {
+        header('Content-Type: text/calendar; charset=utf-8');
+        header('Content-Disposition: attachment; filename="course-table-' . intval($courseTable['tableID']) . '.ics"');
+        header('X-Content-Type-Options: nosniff');
+        echo $calendar['content'];
+        exit;
+    }
     respondJson(200, 'success', [
         "tableID" => intval($courseTable["tableID"]),
         "schoolID" => intval($courseTable["schoolID"]),
         "compoundID" => intval($courseTable["compoundID"]),
         "departmentID" => intval($courseTable["departmentID"]),
         "classID" => intval($courseTable["classID"]),
-        "content" => $courseTable["content"],
+        "content" => $calendar['content'],
+        "icsPath" => $calendar['icsPath'],
         "createdAt" => $courseTable["createdAt"],
         "updatedAt" => $courseTable["updatedAt"]
     ]);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     respondJson(
         500,
-        'database query failed',
-        ['error' => $e->getMessage()],
+        'course calendar unavailable',
+        null,
         500
     );
 }

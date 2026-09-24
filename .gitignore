@@ -1,2 +1,5 @@
 api/.DS_Store
 .DS_Store
+config/ai.local.*
+*.secret.*
+private/
