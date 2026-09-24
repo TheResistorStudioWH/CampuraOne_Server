@@ -22,7 +22,9 @@ try {
 
     // Outside the web root and Git. This file is provisioned on the deployment host only.
     $configFile = getenv('CAMPURA_AI_CONFIG') ?: '/www/server/campura-private/ai.json';
-    $config = is_file($configFile) ? json_decode(file_get_contents($configFile), true, 512, JSON_THROW_ON_ERROR) : [];
+    // A host may restrict outside-root reads with open_basedir. Fail closed without
+    // emitting PHP warnings into the JSON response or weakening that restriction.
+    $config = @is_file($configFile) ? json_decode(@file_get_contents($configFile) ?: '{}', true, 512, JSON_THROW_ON_ERROR) : [];
     if (empty($config['apiKey'])) respondJson(503, '通知总结尚未配置，请查看原文', null, 503);
     $cacheDir = dirname($configFile) . '/summary-cache';
     if (!is_dir($cacheDir) && !mkdir($cacheDir, 0700, true)) throw new RuntimeException('cache unavailable');
