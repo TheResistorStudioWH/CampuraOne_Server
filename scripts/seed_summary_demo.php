@@ -44,9 +44,11 @@ try {
         $check = $pdo->prepare('SELECT userID FROM app_users WHERE userName=?');
         $check->execute([$name]);
         if ($check->fetchColumn()) continue;
-        $stmt = $pdo->prepare('INSERT INTO students (schoolID,studentName,gender,compoundID,departmentID,classID) VALUES (1,?,?,1,1,?)');
-        $stmt->execute(['演示学生' . ($i + 1), '未说明', $class]);
-        $studentID = (int)$pdo->lastInsertId();
+        // Live students.studentID is a primary key without AUTO_INCREMENT.
+        // Lock the highest key in this transaction; collisions fail and roll back safely.
+        $studentID = (int)$pdo->query('SELECT studentID FROM students ORDER BY studentID DESC LIMIT 1 FOR UPDATE')->fetchColumn() + 1;
+        $stmt = $pdo->prepare('INSERT INTO students (studentID,schoolID,studentName,gender,compoundID,departmentID,classID) VALUES (?,1,?,?,1,1,?)');
+        $stmt->execute([$studentID, '演示学生' . ($i + 1), '未说明', $class]);
         $password = 'Demo!' . bin2hex(random_bytes(6));
         $stmt = $pdo->prepare('INSERT INTO app_users (userName,passwordHash,shopIDs,studentID) VALUES (?,?,?,?)');
         $stmt->execute([$name, password_hash($password, PASSWORD_DEFAULT), '[]', $studentID]);
