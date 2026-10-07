@@ -5,10 +5,12 @@ declare(strict_types=1);
 $pdo = require __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/response.php';
 require_once __DIR__ . '/../../includes/request.php';
+require_once __DIR__ . '/../../includes/auth/middleware.php';
 
 requireMethod('GET');
 
-$userID = $_GET['userID'] ?? null;
+$payload = authMiddleware();
+$userID = $payload['userID'] ?? null;
 
 function decodeShopIDs(?string $rawValue): array {
     if ($rawValue === null || $rawValue === '') {
@@ -25,7 +27,7 @@ function decodeShopIDs(?string $rawValue): array {
 }
 
 if ($userID === null || $userID === '') {
-    respondJson(400, 'missing userID', null, 400);
+    respondJson(403, 'no user permission', null, 403);
 }
 
 try {

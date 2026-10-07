@@ -3,3 +3,8 @@ api/.DS_Store
 config/ai.local.*
 *.secret.*
 private/
+vendor/
+.env
+.env.*
+!.env.example
+var/

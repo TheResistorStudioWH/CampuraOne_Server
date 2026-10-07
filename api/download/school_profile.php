@@ -5,6 +5,7 @@ declare(strict_types=1);
 $pdo = require __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/response.php';
 require_once __DIR__ . '/../../includes/request.php';
+require_once __DIR__ . '/../../includes/school/student_compat.php';
 
 requireMethod('GET');
 
@@ -45,10 +46,10 @@ try {
         "schoolID" => intval($school["schoolID"]),
         "schoolName" => $school["schoolName"],
         "schoolLogo" => $school["schoolLogo"],
-        "schoolAddress" => json_decode($school["schoolAddress"], true),
-        "schoolCalendar" => $school["schoolCalendar"],
-        "areaIDs" => json_decode($school["areaIDs"], true),
-        "compoundIDs" => json_decode($school["compoundIDs"], true),
+        "schoolAddress" => json_decode($school["schoolAddress"] ?? '[]', true),
+        "schoolCalendar" => school_effective_calendar($pdo, (int)$schoolID)['content'],
+        "areaIDs" => json_decode($school["areaIDs"] ?? '[]', true),
+        "compoundIDs" => json_decode($school["compoundIDs"] ?? '[]', true),
         "createdAt" => $school["createdAt"],
         "updatedAt" => $school["updatedAt"]
     ];
@@ -59,7 +60,7 @@ try {
     respondJson(
         500,
         'server error',
-        ['error' => $e->getMessage()],
+        null,
         500
     );
 }

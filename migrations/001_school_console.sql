@@ -1,0 +1,102 @@
+CREATE TABLE IF NOT EXISTS school_admin_accounts (
+  adminID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  schoolID INT NOT NULL UNIQUE,
+  loginName VARCHAR(100) NOT NULL UNIQUE,
+  passwordHash VARCHAR(255) NOT NULL,
+  enabled TINYINT NOT NULL DEFAULT 1,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (schoolID) REFERENCES schools(schoolID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS school_admin_sessions (
+  tokenHash CHAR(64) NOT NULL PRIMARY KEY,
+  adminID INT NOT NULL,
+  expiresAt DATETIME NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (adminID) REFERENCES school_admin_accounts(adminID),
+  INDEX (expiresAt)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS school_login_attempts (
+  attemptKey CHAR(64) NOT NULL PRIMARY KEY,
+  attempts INT NOT NULL DEFAULT 0,
+  windowStart DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS school_operation_logs (
+  logID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  schoolID INT NOT NULL,
+  adminID INT DEFAULT NULL,
+  resource VARCHAR(40) NOT NULL,
+  resourceID INT NOT NULL,
+  action VARCHAR(40) NOT NULL,
+  beforeJSON JSON DEFAULT NULL,
+  afterJSON JSON DEFAULT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (schoolID, resource, resourceID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS academic_semesters (
+  semesterID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  schoolID INT NOT NULL,
+  schoolYear CHAR(9) NOT NULL,
+  season ENUM('spring','autumn') NOT NULL,
+  startDate DATE NOT NULL,
+  endDate DATE NOT NULL,
+  firstMonday DATE NOT NULL,
+  version INT NOT NULL DEFAULT 1,
+  calendarVersionID INT DEFAULT NULL,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE (schoolID, schoolYear, season),
+  FOREIGN KEY (schoolID) REFERENCES schools(schoolID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS course_table_versions (
+  versionID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  tableID INT NOT NULL,
+  kind ENUM('base','temporary') NOT NULL,
+  filePath VARCHAR(500) NOT NULL,
+  originalName VARCHAR(255) NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (tableID) REFERENCES course_tables(tableID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS course_week_overrides (
+  tableID INT NOT NULL,
+  weekNo INT NOT NULL,
+  versionID INT NOT NULL,
+  PRIMARY KEY (tableID, weekNo),
+  FOREIGN KEY (tableID) REFERENCES course_tables(tableID),
+  FOREIGN KEY (versionID) REFERENCES course_table_versions(versionID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS school_calendar_versions (
+  versionID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  semesterID INT NOT NULL,
+  filePath VARCHAR(500) NOT NULL,
+  compiledPath VARCHAR(500) NOT NULL,
+  originalName VARCHAR(255) NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (semesterID) REFERENCES academic_semesters(semesterID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS advertisement_reviews (
+  adID INT NOT NULL PRIMARY KEY,
+  schoolID INT NOT NULL,
+  shopID INT NOT NULL,
+  status ENUM('pending','approved','rejected','withdrawn') NOT NULL DEFAULT 'pending',
+  reason TEXT NOT NULL,
+  version INT NOT NULL DEFAULT 1,
+  isDemo TINYINT NOT NULL DEFAULT 0,
+  submittedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  reviewedAt DATETIME DEFAULT NULL,
+  reviewerID INT DEFAULT NULL,
+  FOREIGN KEY (adID) REFERENCES advertisements(adID),
+  FOREIGN KEY (schoolID) REFERENCES schools(schoolID),
+  FOREIGN KEY (shopID) REFERENCES main_shops(shopID),
+  INDEX (schoolID, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS advertisement_quotes (
+  adID INT NOT NULL PRIMARY KEY,
+  orderNumber VARCHAR(100) NOT NULL UNIQUE,
+  packageName VARCHAR(255) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  currency CHAR(3) NOT NULL DEFAULT 'CNY',
+  FOREIGN KEY (adID) REFERENCES advertisements(adID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS school_schema_migrations (
+  migration VARCHAR(100) NOT NULL PRIMARY KEY,
+  appliedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -1,0 +1,39 @@
+name: campura-school-test
+services:
+  db:
+    image: mysql:5.7.44
+    platform: linux/amd64
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: campura_school_test
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - test-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 3s
+      retries: 40
+  php:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    environment:
+      CAMPURA_DB_HOST: db
+      CAMPURA_DB_NAME: campura_school_test
+      CAMPURA_DB_USER: root
+      CAMPURA_DB_PASSWORD: ""
+      CAMPURA_UPLOAD_ROOT: /app/uploads
+      CAMPURA_BASE_URL: http://127.0.0.1:18083
+      CAMPURA_ADMIN_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    volumes:
+      - .:/app
+      - test-uploads:/app/uploads
+    ports:
+      - "127.0.0.1:18083:8080"
+    command: ["php", "-d", "upload_max_filesize=6M", "-d", "post_max_size=8M", "-S", "0.0.0.0:8080", "-t", "/app"]
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  test-db:
+  test-uploads:

@@ -22,4 +22,13 @@ for ($i = 0; $i < 40; $i++) $rows[] = ['announceID' => $i, 'type' => 0, 'content
 $input = summaryInput($rows);
 check(count($input) === 10, 'bounded prompt');
 check(array_sum(array_map(fn($row) => mb_strlen($row['content']), $input)) === 18000, 'prompt character cap');
-echo "PASS: legacy ICS, traversal rejection, audience isolation, prompt limits\n";
+$sources = [['id' => 1], ['id' => 2], ['id' => 3], ['id' => 4]];
+$grouped = formatQwenSummary('{"summary":"1、19、21栋查寝。","sourceIDs":[1,2,3]}', $sources, 4);
+check($grouped['summary'] === '1、19、21栋查寝。还有另外1条通知。', 'grouped notices count as three sources');
+check(formatQwenSummary('{"summary":"今晚停水","sourceIDs":[1,1]}', $sources, 40)['summary'] === '今晚停水。还有另外39条通知。', 'deduplicate sources and count beyond input cap');
+check(formatQwenSummary('{"summary":"1、19、21栋查寝。","sourceIDs":[1,2,3]}', $sources, 3)['summary'] === '1、19、21栋查寝。', 'no omitted suffix when all covered');
+foreach (['{"summary":"查寝","sourceIDs":[999]}', '{"summary":"查寝","sourceIDs":[]}', '{"summary":"查寝","sourceIDs":["1"]}', json_encode(['summary' => str_repeat('字', 25), 'sourceIDs' => [1]])] as $invalid) {
+    try { formatQwenSummary($invalid, $sources, 4); throw new LogicException('invalid summary accepted'); }
+    catch (RuntimeException $e) { check(!($e instanceof LogicException), 'reject invalid summary'); }
+}
+echo "PASS: legacy ICS, traversal rejection, audience isolation, prompt limits, compact grouped summaries\n";

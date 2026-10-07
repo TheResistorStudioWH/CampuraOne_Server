@@ -1,0 +1,4116 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Campura One School Console",
+    "version": "1.0.0",
+    "description": "本轮本地实现，未部署。业务规则、迁移和请求说明见school-console.md；默认Asia/Shanghai，数据库时间字符串没有偏移，输入通知时间须带偏移。管理身份来自会话而非请求schoolID。"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:18083",
+      "description": "隔离测试"
+    }
+  ],
+  "security": [
+    {
+      "SchoolBearer": []
+    }
+  ],
+  "paths": {
+    "/api/auth/school/login.php": {
+      "post": {
+        "summary": "学校登录",
+        "operationId": "_api_auth_school_login_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoginResult"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "loginName": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "maxLength": 72
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "loginName",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/school/session.php": {
+      "get": {
+        "summary": "恢复会话",
+        "operationId": "_api_auth_school_session_php_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Session"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      }
+    },
+    "/api/auth/school/logout.php": {
+      "post": {
+        "summary": "撤销当前会话",
+        "operationId": "_api_auth_school_logout_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "loggedOut": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/school/password.php": {
+      "post": {
+        "summary": "改密并撤销全部会话",
+        "operationId": "_api_auth_school_password_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "loginRequired": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currentPassword": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 12,
+                    "maxLength": 72
+                  }
+                },
+                "required": [
+                  "currentPassword",
+                  "newPassword"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/school/profile.php": {
+      "get": {
+        "summary": "本校资料",
+        "operationId": "_api_school_profile_php_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/School"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      },
+      "patch": {
+        "summary": "编辑资料",
+        "operationId": "_api_school_profile_php_patch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/School"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "schoolName": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "schoolAddress": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 200
+                    }
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "schoolName",
+                  "schoolAddress",
+                  "version"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "上传 Logo（JPEG/PNG/WebP，5 MiB）",
+        "operationId": "_api_school_profile_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/School"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "upload_logo"
+                    ]
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "action",
+                  "version",
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/school/directory.php": {
+      "get": {
+        "summary": "本校学院、系、完整班级范围",
+        "operationId": "_api_school_directory_php_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "compounds": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "compoundID": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "compoundName": {
+                                "type": "string"
+                              }
+                            },
+                            "required": []
+                          }
+                        },
+                        "departments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "departmentID": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "departmentName": {
+                                "type": "string"
+                              },
+                              "compoundID": {
+                                "type": "integer",
+                                "minimum": 1
+                              }
+                            },
+                            "required": []
+                          }
+                        },
+                        "classes": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Scope"
+                          }
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      }
+    },
+    "/api/school/students.php": {
+      "get": {
+        "summary": "学生查找",
+        "operationId": "_api_school_students_php_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "studentNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "compoundID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "departmentID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "classID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Student"
+                          }
+                        },
+                        "page": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "items",
+                        "page",
+                        "limit",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "description": "学号精确匹配并保留前导零；姓名包含查询。返回院系、班级，不返回密码。"
+      }
+    },
+    "/api/school/semesters.php": {
+      "get": {
+        "summary": "学期列表或详情",
+        "operationId": "_api_school_semesters_php_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Term"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        },
+                        {
+                          "$ref": "#/components/schemas/Term"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      },
+      "post": {
+        "summary": "创建学期",
+        "operationId": "_api_school_semesters_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Term"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TermInput"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "修改学期并重新编译",
+        "operationId": "_api_school_semesters_php_patch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Term"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/TermInput"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "version"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/school/announcements.php": {
+      "get": {
+        "summary": "通知列表/详情/历史",
+        "operationId": "_api_school_announcements_php_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "history"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1,
+                2
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "active",
+                "scheduled",
+                "expired",
+                "revoked"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Notice"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        },
+                        {
+                          "$ref": "#/components/schemas/Notice"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/History"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      },
+      "post": {
+        "summary": "创建或撤回",
+        "operationId": "_api_school_announcements_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Notice"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "description": "创建省略 action；标题与正文分别保存；scheduled 必须 startTime，所有新通知必须 endTime。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/NoticeInput"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "enum": [
+                          "revoke"
+                        ]
+                      },
+                      "id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "id",
+                      "version"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "修改通知",
+        "operationId": "_api_school_announcements_php_patch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Notice"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/NoticeInput"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "version"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/school/timetables.php": {
+      "get": {
+        "summary": "课表列表/详情/历史/下载",
+        "operationId": "_api_school_timetables_php_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "semesterID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "history",
+                "download"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Timetable"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        },
+                        {
+                          "$ref": "#/components/schemas/Timetable"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ICSVersion"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              },
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      },
+      "post": {
+        "summary": "上传/恢复常规课表、替换/撤销整周临时覆盖",
+        "operationId": "_api_school_timetables_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Timetable"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "description": "新课表用完整班级范围和version=0；已有课表用id+version。上传必须multipart+file；临时/撤销需weeks；恢复需versionID。ICS 2 MiB。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "semesterID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "compoundID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "departmentID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "classID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "upload_base",
+                      "upload_temporary",
+                      "restore_base",
+                      "cancel_temporary"
+                    ]
+                  },
+                  "weeks": {
+                    "oneOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 54
+                        }
+                      },
+                      {
+                        "type": "string",
+                        "example": "[3,5]"
+                      }
+                    ]
+                  },
+                  "versionID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "semesterID",
+                  "version",
+                  "action"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "semesterID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "compoundID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "departmentID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "classID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "upload_base",
+                      "upload_temporary",
+                      "restore_base",
+                      "cancel_temporary"
+                    ]
+                  },
+                  "weeks": {
+                    "oneOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 54
+                        }
+                      },
+                      {
+                        "type": "string",
+                        "example": "[3,5]"
+                      }
+                    ]
+                  },
+                  "versionID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "semesterID",
+                  "version",
+                  "action"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/school/calendar.php": {
+      "get": {
+        "summary": "校历/历史/下载",
+        "operationId": "_api_school_calendar_php_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false
+          },
+          {
+            "name": "semesterID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "history",
+                "download"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/Calendar"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/ICSVersion"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              },
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "description": "省略semesterID使用当前学期；没有已开始学期时需明确指定。"
+      },
+      "post": {
+        "summary": "上传或恢复校历",
+        "operationId": "_api_school_calendar_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Calendar"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "description": "version是学期版本。上传multipart+file；恢复需versionID。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "semesterID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "upload",
+                      "restore"
+                    ]
+                  },
+                  "versionID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "semesterID",
+                  "version",
+                  "action"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "semesterID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "upload",
+                      "restore"
+                    ]
+                  },
+                  "versionID": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "semesterID",
+                  "version",
+                  "action"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/school/advertisements.php": {
+      "get": {
+        "summary": "广告申请列表/详情/历史",
+        "operationId": "_api_school_advertisements_php_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "history"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "pending",
+                "approved",
+                "rejected",
+                "withdrawn"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/Advertisement"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        },
+                        {
+                          "$ref": "#/components/schemas/Advertisement"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/History"
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "limit": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "total": {
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "limit",
+                            "total"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      },
+      "post": {
+        "summary": "审核、下架或重新送审",
+        "operationId": "_api_school_advertisements_php_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Advertisement"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "description": "withdraw 必须reason；pending可approve/reject，rejected可edit_reason/undo_rejection，approved可withdraw，withdrawn可resubmit。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "approve",
+                      "reject",
+                      "edit_reason",
+                      "undo_rejection",
+                      "withdraw",
+                      "resubmit"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "id",
+                  "version",
+                  "action"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/school/dashboard.php": {
+      "get": {
+        "summary": "真实管理仪表盘",
+        "operationId": "_api_school_dashboard_php_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Dashboard"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        }
+      }
+    },
+    "/api/download/announcements.php": {
+      "get": {
+        "summary": "学生通知（兼容旧字段）",
+        "operationId": "_api_download_announcements_php_get",
+        "parameters": [
+          {
+            "name": "schoolID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                0,
+                1,
+                2
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "announceID": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "schoolID": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "integer"
+                          },
+                          "target": {
+                            "type": "object",
+                            "nullable": true
+                          },
+                          "startTime": {
+                            "type": "string"
+                          },
+                          "endTime": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": []
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "security": [
+          {
+            "StudentBearer": []
+          }
+        ],
+        "description": "学生JWT认证，学校与接收对象取数据库；标题合入content，撤回/定时规则与AI摘要一致。"
+      }
+    },
+    "/api/download/advertisements.php": {
+      "get": {
+        "summary": "已生效广告",
+        "operationId": "_api_download_advertisements_php_get",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "L",
+                "S"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "saleID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "adID": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "saleID": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "L",
+                              "S"
+                            ]
+                          },
+                          "img": {
+                            "type": "string"
+                          },
+                          "startTime": {
+                            "type": "string"
+                          },
+                          "endTime": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": []
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "security": [],
+        "description": "可选学生JWT按本校过滤；未归属旧广告兼容保留。"
+      }
+    },
+    "/api/download/course_table.php": {
+      "get": {
+        "summary": "有效 ICS 与原课表字段",
+        "operationId": "_api_download_course_table_php_get",
+        "parameters": [
+          {
+            "name": "schoolID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "compoundID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "departmentID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "classID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "semesterID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "tableID": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "schoolID": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "compoundID": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "departmentID": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "classID": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "content": {
+                          "type": "string"
+                        },
+                        "icsPath": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              },
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/download/school_calendar.php": {
+      "get": {
+        "summary": "有效校历",
+        "operationId": "_api_download_school_calendar_php_get",
+        "parameters": [
+          {
+            "name": "schoolID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "semesterID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "name": "download",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "schoolID": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "content": {
+                          "type": "string"
+                        },
+                        "icsPath": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "updatedAt": {
+                          "type": "string"
+                        },
+                        "semesterID": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "message",
+                    "data"
+                  ]
+                }
+              },
+              "text/calendar": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Status400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Status401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Status403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Status404"
+          },
+          "405": {
+            "$ref": "#/components/responses/Status405"
+          },
+          "409": {
+            "$ref": "#/components/responses/Status409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Status413"
+          },
+          "422": {
+            "$ref": "#/components/responses/Status422"
+          },
+          "429": {
+            "$ref": "#/components/responses/Status429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Status500"
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Envelope": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "data"
+        ]
+      },
+      "Scope": {
+        "type": "object",
+        "properties": {
+          "compoundID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "departmentID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "classID": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "compoundID",
+          "departmentID",
+          "classID"
+        ]
+      },
+      "Target": {
+        "type": "object",
+        "properties": {
+          "allSchool": {
+            "type": "boolean"
+          },
+          "compoundIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "departmentIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "classScopes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Scope"
+            }
+          },
+          "studentIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "required": [
+          "allSchool"
+        ]
+      },
+      "School": {
+        "type": "object",
+        "properties": {
+          "schoolID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "schoolName": {
+            "type": "string"
+          },
+          "schoolAddress": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "schoolLogo": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "Student": {
+        "type": "object",
+        "properties": {
+          "studentID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "studentNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "compoundID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "departmentID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "classID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "compoundName": {
+            "type": "string"
+          },
+          "departmentName": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "TermInput": {
+        "type": "object",
+        "properties": {
+          "schoolYear": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{4}$"
+          },
+          "season": {
+            "type": "string",
+            "enum": [
+              "spring",
+              "autumn"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "firstMonday": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "schoolYear",
+          "season",
+          "startDate",
+          "endDate",
+          "firstMonday"
+        ]
+      },
+      "NoticeInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 100000
+          },
+          "type": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "publishMode": {
+            "type": "string",
+            "enum": [
+              "now",
+              "scheduled"
+            ]
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "target": {
+            "$ref": "#/components/schemas/Target"
+          }
+        },
+        "required": [
+          "title",
+          "content",
+          "type",
+          "endTime",
+          "target"
+        ]
+      },
+      "History": {
+        "type": "object",
+        "properties": {
+          "logID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "schoolID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "resource": {
+            "type": "string"
+          },
+          "resourceID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "action": {
+            "type": "string"
+          },
+          "beforeJSON": {
+            "type": "string",
+            "nullable": true
+          },
+          "afterJSON": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "ICSVersion": {
+        "type": "object",
+        "properties": {
+          "versionID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "tableID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "semesterID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "base",
+              "temporary"
+            ]
+          },
+          "filePath": {
+            "type": "string"
+          },
+          "compiledPath": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "Timetable": {
+        "type": "object",
+        "properties": {
+          "tableID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "schoolID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "semesterID": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "compoundID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "departmentID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "classID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "baseVersionID": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "content": {
+            "type": "string"
+          },
+          "overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "weekNo": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "versionID": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": []
+            }
+          }
+        },
+        "required": []
+      },
+      "Advertisement": {
+        "type": "object",
+        "properties": {
+          "adID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "schoolID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "shopID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "withdrawn"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "isDemo": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "submittedAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "L",
+              "S"
+            ]
+          },
+          "img": {
+            "type": "string"
+          },
+          "saleID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "packageName": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "string",
+            "nullable": true,
+            "description": "报价 DECIMAL 字符串；不是收入"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentStatus": {
+            "type": "string",
+            "enum": [
+              "not_integrated"
+            ]
+          }
+        },
+        "required": []
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "adminID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "schoolID": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "loginName": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "LoginResult": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "pattern": "^sc_[a-f0-9]{64}$"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "admin": {
+            "type": "object",
+            "properties": {
+              "adminID": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "schoolID": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "loginName": {
+                "type": "string"
+              }
+            },
+            "required": []
+          }
+        },
+        "required": []
+      },
+      "EventPreview": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string"
+          }
+        },
+        "required": []
+      },
+      "Term": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TermInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "semesterID": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "schoolID": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "calendarVersionID": {
+                "type": "integer",
+                "minimum": 1,
+                "nullable": true
+              },
+              "updatedAt": {
+                "type": "string"
+              }
+            },
+            "required": []
+          }
+        ]
+      },
+      "Notice": {
+        "type": "object",
+        "properties": {
+          "announceID": {
+            "type": "integer"
+          },
+          "schoolID": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string"
+          },
+          "type": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "target": {
+            "type": "object",
+            "nullable": true,
+            "description": "新通知遵循Target；旧通知可能包含旧classIDs/areaIDs"
+          },
+          "revokedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "scheduled",
+              "expired",
+              "revoked"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "Calendar": {
+        "type": "object",
+        "properties": {
+          "semester": {
+            "$ref": "#/components/schemas/Term"
+          },
+          "calendar": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ICSVersion"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": []
+      },
+      "Dashboard": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "school": {
+            "$ref": "#/components/schemas/School"
+          },
+          "semester": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Term"
+              }
+            ],
+            "nullable": true
+          },
+          "notices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Notice"
+            }
+          },
+          "calendarEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventPreview"
+            }
+          },
+          "timetable": {
+            "type": "object",
+            "nullable": true
+          },
+          "adStats": {
+            "type": "object",
+            "properties": {
+              "pendingCount": {
+                "type": "string"
+              },
+              "approvedCount": {
+                "type": "string"
+              },
+              "rejectedCount": {
+                "type": "string"
+              },
+              "averageWaitingHours": {
+                "type": "string"
+              },
+              "approvalRate": {
+                "type": "number",
+                "nullable": true
+              },
+              "activeAds": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "L",
+                        "S"
+                      ]
+                    },
+                    "count": {
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              "quoteTotal": {
+                "type": "string"
+              },
+              "reviewTrend": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "approve",
+                        "reject"
+                      ]
+                    },
+                    "count": {
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              "rejectionReasons": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "reason": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              "processedThisWeek": {
+                "type": "integer"
+              },
+              "currentOnlineStudents": {
+                "type": "integer",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              },
+              "impressions": {
+                "type": "integer",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              },
+              "clicks": {
+                "type": "integer",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              },
+              "totalRevenue": {
+                "type": "number",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              },
+              "unavailableMetrics": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          }
+        },
+        "required": []
+      }
+    },
+    "securitySchemes": {
+      "SchoolBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "opaque sc_ + 64 hex"
+      },
+      "StudentBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "legacy JWT"
+      }
+    },
+    "responses": {
+      "Status400": {
+        "description": "请求失败",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status401": {
+        "description": "认证缺失或过期",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status403": {
+        "description": "禁止访问",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status404": {
+        "description": "请求失败",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status405": {
+        "description": "请求失败",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status409": {
+        "description": "版本冲突或状态不允许",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status413": {
+        "description": "大小超限",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status422": {
+        "description": "内容校验失败",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status429": {
+        "description": "登录失败限流",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      },
+      "Status500": {
+        "description": "请求失败",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            }
+          }
+        }
+      }
+    }
+  }
+}

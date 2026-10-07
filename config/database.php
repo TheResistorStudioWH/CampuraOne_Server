@@ -1,13 +1,18 @@
 <?php
 
-$host = "127.0.0.1";
-$dbname = "campura_one";
-$username = "campura_one";
-$password = "070817Linux";
+$host = getenv('CAMPURA_DB_HOST') ?: "127.0.0.1";
+$dbname = getenv('CAMPURA_DB_NAME') ?: "campura_one";
+$username = getenv('CAMPURA_DB_USER') ?: "campura_one";
+$password = getenv('CAMPURA_DB_PASSWORD');
+// Existing deployment must supply credentials through its private environment.
+if ($password === false) {
+    throw new RuntimeException('CAMPURA_DB_PASSWORD is required');
+}
+$port = (int)(getenv('CAMPURA_DB_PORT') ?: 3306);
 
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+        "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
         $username,
         $password,
         [
@@ -15,12 +20,17 @@ try {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]
     );
+    $pdo->exec("SET time_zone = '+08:00'");
     return $pdo;
 } catch (PDOException $e) {
+    if (PHP_SAPI === 'cli') {
+        throw new RuntimeException('database connection failed', 0, $e);
+    }
     http_response_code(500);
     echo json_encode([
         "code" => 500,
-        "message" => "database connection failed"
+        "message" => "database connection failed",
+        "data" => null
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }

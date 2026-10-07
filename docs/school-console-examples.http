@@ -1,0 +1,84 @@
+# REST Client 风格示例；只指向本机隔离环境。
+# SCHOOL_ID 等 ID 用实际查询值替换；修改 version 使用刚读取的值。
+# 不要把填好的密码或 token 保存进 Git。推荐工具的私密环境变量。
+@base = http://127.0.0.1:18083
+
+### 登录（凭据来自本地私密环境；不要提交真实值）
+POST {{base}}/api/auth/school/login.php
+Content-Type: application/json
+
+{
+  "loginName": "{{$processEnv CAMPURA_TEST_LOGIN}}",
+  "password": "{{$processEnv CAMPURA_TEST_PASSWORD}}",
+  "rememberMe": false
+}
+
+### 恢复会话
+GET {{base}}/api/auth/school/session.php
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+
+### 院系班级目录
+GET {{base}}/api/school/directory.php
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+
+### 按学号精确搜索（保留前导零）
+GET {{base}}/api/school/students.php?studentNumber=000001&page=1&limit=20
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+
+### 全校日常通知（时间仅为格式示例，使用时自行调整）
+POST {{base}}/api/school/announcements.php
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "图书馆延时开放",
+  "content": "本周一楼自习区开放至22:30，22:15停止入场。",
+  "type": 0,
+  "publishMode": "now",
+  "endTime": "2026-10-31T23:59:59+08:00",
+  "target": {"allSchool": true}
+}
+
+### 通知列表 / 详情 / 历史
+GET {{base}}/api/school/announcements.php?status=active&page=1&limit=20
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+
+### 当前学期课表列表（不提前切换到未来学期）
+GET {{base}}/api/school/timetables.php
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+
+### 创建学期
+POST {{base}}/api/school/semesters.php
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+Content-Type: application/json
+
+{
+  "schoolYear": "2026-2027",
+  "season": "autumn",
+  "startDate": "2026-10-05",
+  "endDate": "2026-11-29",
+  "firstMonday": "2026-10-05"
+}
+
+### 审核队列
+GET {{base}}/api/school/advertisements.php?status=pending
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+
+### 仪表盘（收入、在线人数、曝光和点击为 null，不是模拟统计）
+GET {{base}}/api/school/dashboard.php
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+
+### 退出
+POST {{base}}/api/auth/school/logout.php
+Authorization: Bearer {{$processEnv CAMPURA_TEST_TOKEN}}
+Content-Type: application/json
+
+{}
+
+# multipart 文件上传与 PATCH/撤回/审核的完整可执行例子：
+# tests/integration.php 的 request() 调用。
+# upload_base: semesterID, compoundID, departmentID, classID, version=0, file
+# upload_temporary: semesterID, id, version, weeks="[3,5]", file
+# cancel_temporary: JSON {action, semesterID, id, version, weeks:[3,5]}
+# restore_base: JSON {action, semesterID, id, version, versionID}
+# POST advertisements: JSON {action:"withdraw", id, version, reason:"活动已结束"}
