@@ -29,15 +29,16 @@ try {
     // avoiding any need to relax the site's open_basedir restriction.
     $environmentKey = getenv('CAMPURA_QWEN_API_KEY');
     if (is_string($environmentKey) && $environmentKey !== '') {
-        $config = ['apiKey' => $environmentKey,
-            'endpoint' => getenv('CAMPURA_QWEN_ENDPOINT') ?: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
-            'model' => getenv('CAMPURA_QWEN_MODEL') ?: 'qwen3.7-flash',
-            'dailyCallLimit' => (int)(getenv('CAMPURA_QWEN_DAILY_LIMIT') ?: 30)];
+        // Rotating only the credential must not silently reset the selected model.
+        $config = array_replace($config, ['apiKey' => $environmentKey,
+            'endpoint' => getenv('CAMPURA_QWEN_ENDPOINT') ?: ($config['endpoint'] ?? 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'),
+            'model' => getenv('CAMPURA_QWEN_MODEL') ?: ($config['model'] ?? 'qwen3.7-plus'),
+            'dailyCallLimit' => (int)(getenv('CAMPURA_QWEN_DAILY_LIMIT') ?: ($config['dailyCallLimit'] ?? 30))]);
     }
     if (empty($config['apiKey'])) respondJson(503, '通知总结尚未配置，请查看原文', null, 503);
     $cacheDir = $environmentKey ? '/tmp/campura-one-summary' : dirname($configFile) . '/summary-cache';
     if (!is_dir($cacheDir) && !mkdir($cacheDir, 0700, true)) throw new RuntimeException('cache unavailable');
-    $digest = hash('sha256', json_encode([$config['model'] ?? 'qwen3.7-flash', 'prompt-v4-grouped24', $input, count($rows)], JSON_UNESCAPED_UNICODE));
+    $digest = hash('sha256', json_encode([$config['model'] ?? 'qwen3.7-plus', 'prompt-v5-grouped18', $input, count($rows)], JSON_UNESCAPED_UNICODE));
     $cacheFile = $cacheDir . '/' . $digest . '.json';
     // Global lock and daily paid-call cap bound both duplicate calls and account spending.
     $lock = fopen($cacheDir . '/generation.lock', 'c');

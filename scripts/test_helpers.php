@@ -27,7 +27,8 @@ $grouped = formatQwenSummary('{"summary":"1、19、21栋查寝。","sourceIDs":[
 check($grouped['summary'] === '1、19、21栋查寝。还有另外1条通知。', 'grouped notices count as three sources');
 check(formatQwenSummary('{"summary":"今晚停水","sourceIDs":[1,1]}', $sources, 40)['summary'] === '今晚停水。还有另外39条通知。', 'deduplicate sources and count beyond input cap');
 check(formatQwenSummary('{"summary":"1、19、21栋查寝。","sourceIDs":[1,2,3]}', $sources, 3)['summary'] === '1、19、21栋查寝。', 'no omitted suffix when all covered');
-foreach (['{"summary":"查寝","sourceIDs":[999]}', '{"summary":"查寝","sourceIDs":[]}', '{"summary":"查寝","sourceIDs":["1"]}', json_encode(['summary' => str_repeat('字', 25), 'sourceIDs' => [1]])] as $invalid) {
+check(formatQwenSummary(json_encode(['summary' => str_repeat('字', 18), 'sourceIDs' => [1]]), $sources, 1)['summary'] === str_repeat('字', 18), '18 character summary boundary');
+foreach (['{"summary":"查寝","sourceIDs":[999]}', '{"summary":"查寝","sourceIDs":[]}', '{"summary":"查寝","sourceIDs":["1"]}', json_encode(['summary' => str_repeat('字', 19), 'sourceIDs' => [1]])] as $invalid) {
     try { formatQwenSummary($invalid, $sources, 4); throw new LogicException('invalid summary accepted'); }
     catch (RuntimeException $e) { check(!($e instanceof LogicException), 'reject invalid summary'); }
 }
